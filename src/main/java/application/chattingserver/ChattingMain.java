@@ -15,15 +15,14 @@ import java.util.Iterator;
 public class ChattingMain extends Application {
 
     static HashMap<String, Socket> clientList;
-    ServerSocket serverSocket = null;
+    static ServerSocket serverSocket = null;
 
-    public void startServer(){
+    public static void startServer(){
         clientList = new HashMap<>();
         Collections.synchronizedMap(clientList);
 
         try{
             serverSocket = new ServerSocket(1119);
-            System.out.println("[서버 시작]");
             Thread thread = new Thread(new ServerThread());
             thread.run();
         } catch (IOException e) {
@@ -31,7 +30,7 @@ public class ChattingMain extends Application {
         }
     }
     
-    class ServerThread implements Runnable{
+    public static class ServerThread implements Runnable{
         Socket socket = null;
 
         @Override
@@ -49,7 +48,7 @@ public class ChattingMain extends Application {
         }
     }
 
-    public void stopServer(){
+    public static void stopServer(){
         try{
             Iterator it = clientList.values().iterator();
 

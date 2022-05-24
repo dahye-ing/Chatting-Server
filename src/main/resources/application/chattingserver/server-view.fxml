@@ -7,7 +7,7 @@
    <children>
       <Pane prefHeight="380.0" prefWidth="260.0">
          <children>
-            <TextArea editable="false" layoutX="11.0" layoutY="10.0" prefHeight="333.0" prefWidth="245.0" />
+            <TextArea fx:id="screen" editable="false" layoutX="11.0" layoutY="10.0" prefHeight="333.0" prefWidth="245.0" />
             <Button fx:id="startBtn" layoutX="80.0" layoutY="350.0" mnemonicParsing="false" onAction="#onStartButtonClick" prefHeight="23.0" prefWidth="108.0" text="서버 ON" />
          </children>
       </Pane>
