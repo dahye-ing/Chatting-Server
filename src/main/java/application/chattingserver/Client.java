@@ -6,14 +6,15 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.Iterator;
 
-import static application.chattingserver.ChattingMain.clientList;
+import static application.chattingserver.AppController.clientList;
+
 
 public class Client{
     Socket socket;
 
     public Client(Socket socket){
         this.socket = socket;
-        Thread thread = new Thread(new ServerReceiver(socket));
+        Thread thread = new Thread(new ServerReceiver());
         thread.run();
     }
 
@@ -21,7 +22,7 @@ public class Client{
         DataInputStream in;
         DataOutputStream out;
 
-        ServerReceiver(Socket socket){
+        ServerReceiver(){
             try{
                 in = new DataInputStream(socket.getInputStream());
                 out = new DataOutputStream(socket.getOutputStream());
