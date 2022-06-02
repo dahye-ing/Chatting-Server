@@ -29,28 +29,10 @@ public class AppController implements Initializable {
 
         try{
             serverSocket = new ServerSocket(1119);
-            Thread thread = new Thread(new ServerThread());
+            Thread thread = new Thread(new ServerThread(serverSocket));
             thread.run();
         } catch (IOException e) {
             e.printStackTrace();
-        }
-    }
-
-    public class ServerThread implements Runnable{
-        Socket socket = null;
-
-        @Override
-        public void run() {
-            try{
-
-                while(true){
-                    socket = serverSocket.accept();
-                    Thread thread = new Thread((Runnable) new Client(socket));
-                    thread.start();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
     }
 
@@ -75,10 +57,6 @@ public class AppController implements Initializable {
     protected void onStartButtonClick() {
         if(startBtn.getText().equals("서버 ON")){
             startServer();
-            Platform.runLater(()-> {
-                screen.appendText("[[서버 시작]]\n");
-                startBtn.setText("서버 OFF");
-            });
 
         } else{
             stopServer();
@@ -92,5 +70,32 @@ public class AppController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         startBtn.setOnAction(event -> onStartButtonClick());
+    }
+}
+
+class ServerThread implements Runnable{
+    ServerSocket serverSocket;
+    Socket socket = null;
+
+    ServerThread(ServerSocket serverSocket){
+        this.serverSocket = serverSocket;
+    }
+
+    @Override
+    public void run() {
+        try{
+
+            while(true){
+                Platform.runLater(()-> {
+                    screen.appendText("[[서버 시작]]\n");
+                    startBtn.setText("서버 OFF");
+                });
+                socket = serverSocket.accept();
+                Thread thread = new Thread(new Client(socket));
+                thread.start();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
