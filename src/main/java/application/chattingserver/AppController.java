@@ -14,14 +14,19 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ResourceBundle;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 public class AppController implements Initializable {
     @FXML private Button startBtn;
     @FXML private TextArea screen;
 
-    static HashMap<String, Socket> clientList;
+    public static HashMap<String, Socket> clientList;
+    public static ExecutorService threadPool;
+
     ServerSocket serverSocket = null;
+    Socket socket = null;
 
     public void startServer(){
         clientList = new HashMap<>();
@@ -29,11 +34,29 @@ public class AppController implements Initializable {
 
         try{
             serverSocket = new ServerSocket(1119);
-            Thread thread = new Thread(new ServerThread(serverSocket));
-            thread.run();
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        Runnable thread = () -> {
+            try{
+
+                while(true){
+                    Platform.runLater(()-> {
+                        screen.appendText("[[서버 시작]]\n");
+                        startBtn.setText("서버 OFF");
+                    });
+                    socket = serverSocket.accept();
+                    Thread thread1 = new Thread(new Client(socket));
+                    thread1.start();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        };
+        threadPool = Executors.newCachedThreadPool();
+        threadPool.submit(thread);
+
     }
 
     public void stopServer(){
@@ -47,6 +70,9 @@ public class AppController implements Initializable {
             }
             if(serverSocket != null && !serverSocket.isClosed()){
                 serverSocket.close();
+            }
+            if(threadPool != null && !threadPool.isShutdown()) {
+                threadPool.shutdown();
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -70,32 +96,5 @@ public class AppController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         startBtn.setOnAction(event -> onStartButtonClick());
-    }
-}
-
-class ServerThread implements Runnable{
-    ServerSocket serverSocket;
-    Socket socket = null;
-
-    ServerThread(ServerSocket serverSocket){
-        this.serverSocket = serverSocket;
-    }
-
-    @Override
-    public void run() {
-        try{
-
-            while(true){
-                Platform.runLater(()-> {
-                    screen.appendText("[[서버 시작]]\n");
-                    startBtn.setText("서버 OFF");
-                });
-                socket = serverSocket.accept();
-                Thread thread = new Thread(new Client(socket));
-                thread.start();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }
